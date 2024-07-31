@@ -10,8 +10,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: [ ubuntu-22.04 ]
-        #  paketo-community does not have access to buildjet      , buildjet-4vcpu-ubuntu-2204-arm ]
+        runner: [ ubuntu-22.04, buildjet-4vcpu-ubuntu-2204-arm ]
     steps:
     - name: Setup Go
       uses: actions/setup-go@v3

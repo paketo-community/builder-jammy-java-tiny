@@ -14,8 +14,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: [ ubuntu-22.04 ]
-        #  paketo-community does not have access to buildjet      , buildjet-4vcpu-ubuntu-2204-arm ]
+        runner: [ ubuntu-22.04, buildjet-4vcpu-ubuntu-2204-arm ]
     outputs:
       release_notes: ${{ steps.notes.outputs.body }}
     steps:
