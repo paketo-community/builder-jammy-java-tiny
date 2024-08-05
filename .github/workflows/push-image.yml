@@ -1,20 +1,15 @@
 name: Push Builder Image
 
 on:
-  release:
-    types:
-    - published
+    push:
+        branches:
+            - anthony-test
 
 jobs:
   push:
     name: Push
     runs-on: ubuntu-22.04
     steps:
-
-    - name: Parse Event
-      id: event
-      run: |
-        echo "tag=$(jq -r '.release.tag_name' "${GITHUB_EVENT_PATH}" | sed s/^v//)" >> "$GITHUB_OUTPUT"
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -45,40 +40,20 @@ jobs:
         if [ -f "scripts/options.json" ] && jq -e -r .pack_config_enable_experimental "scripts/options.json" > /dev/null; then
           pack config experimental true
         fi
-
     - name: Create Builder Image and Push To Dockerhub
       env:
         PAKETO_BUILDPACKS_DOCKERHUB_USERNAME: ${{ secrets.PAKETO_BUILDPACKS_DOCKERHUB_USERNAME }}
         PAKETO_BUILDPACKS_DOCKERHUB_PASSWORD: ${{ secrets.PAKETO_BUILDPACKS_DOCKERHUB_PASSWORD }}
         GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-      run: |
-        DOCKERHUB_ORG="${GITHUB_REPOSITORY_OWNER/-/}" # translates 'paketo-community' to 'paketocommunity'
+      uses: mxschmitt/action-tmate@v3
+        # DOCKERHUB_ORG="${GITHUB_REPOSITORY_OWNER/-/}" # translates 'paketo-community' to 'paketocommunity'
         # Strip off the Github org prefix from repo name
         # paketo-community/builder-with-some-name --> builder-with-some-name
-        registry_repo=$(echo "${{ github.repository }}" | sed 's/^.*\///')
+        #registry_repo=$(echo "${{ github.repository }}" | sed 's/^.*\///')
 
-        echo "${PAKETO_BUILDPACKS_DOCKERHUB_PASSWORD}" | docker login --username "${PAKETO_BUILDPACKS_DOCKERHUB_USERNAME}" --password-stdin
+        # echo "${PAKETO_BUILDPACKS_DOCKERHUB_PASSWORD}" | docker login --username "${PAKETO_BUILDPACKS_DOCKERHUB_USERNAME}" --password-stdin
 
         # In order to publish multi-arch builders with pack, the builder MUST be published.
         # It cannot be created locally and then pushed
-        pack builder create "${DOCKERHUB_ORG}/${registry_repo}:${{ steps.event.outputs.tag }}" --config builder.toml --publish
-        crane copy "${DOCKERHUB_ORG}/${registry_repo}:${{ steps.event.outputs.tag }}" "${DOCKERHUB_ORG}/${registry_repo}:latest"
-
-  failure:
-    name: Alert on Failure
-    runs-on: ubuntu-22.04
-    needs: [push]
-    if: ${{ always() && needs.push.result == 'failure' }}
-    steps:
-    - name: File Failure Alert Issue
-      uses: paketo-buildpacks/github-config/actions/issue/file@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        repo: ${{ github.repository }}
-        label: "failure:push"
-        comment_if_exists: true
-        issue_title: "Failure: Push Image workflow"
-        issue_body: |
-          Push Image workflow [failed](https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}).
-        comment_body: |
-           Another failure occurred: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+        # pack builder create "${DOCKERHUB_ORG}/${registry_repo}:${{ steps.event.outputs.tag }}" --config builder.toml --publish
+        # crane copy "${DOCKERHUB_ORG}/${registry_repo}:${{ steps.event.outputs.tag }}" "${DOCKERHUB_ORG}/${registry_repo}:latest"
