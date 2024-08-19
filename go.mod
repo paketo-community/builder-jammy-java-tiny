@@ -1,6 +1,6 @@
 module github.com/paketo-community/builder-jammy-java-tiny
 
-go 1.22.6
+go 1.23.0
 
 require (
 	github.com/onsi/gomega v1.34.2
