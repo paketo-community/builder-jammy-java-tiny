@@ -1,6 +1,9 @@
-# Paketo Jammy Java Tiny Builder
+# Archived and moved
+## Please go to: https://github.com/paketo-buildpacks/builder-jammy-java-tiny
 
-## `paketobuildpacks/builder-jammy-java-tiny`
+### Paketo Jammy Java Tiny Builder
+
+#### `paketobuildpacks/builder-jammy-java-tiny`
 
 This builder uses the [Paketo Jammy Tiny
 Stack](https://github.com/paketo-buildpacks/jammy-tiny-stack) (Ubuntu Jammy
